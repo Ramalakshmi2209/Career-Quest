@@ -1,0 +1,89 @@
+
+body {
+    background-image: url('/static/images/ne.jpg'); 
+    background-size: cover;
+    background-position: center;
+    height: 100vh; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: black;
+}
+
+/* Additional styling for the form container if needed */
+.form-container {
+    background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent white background to the form */
+    padding: 20px;
+    border-radius: 10px;
+}
+
+h1 {
+    text-align: center;
+    color: black;
+}
+
+form {
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #4caf50;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+    color:black;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+/* Add your custom styles here */
+
+/* Center the welcome message */
+.container {
+    text-align: center;
+}
+
+/* Add space between cards */
+.card {
+    margin-bottom: 20px;
+}
+
+/* Adjust card text color */
+.card-text {
+    color:black
+}
+
+/* Style the play buttons */
+.btn-primary {
+    background-color: #ff00d4;
+    border-color: #ff00bb;
+}
+
+.btn-primary:hover {
+    background-color: #b30071;
+    border-color: #b30065;
+}

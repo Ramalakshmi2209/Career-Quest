@@ -1,0 +1,243 @@
+<!-- quiz_lobby.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Interview Lobby</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include your custom CSS if needed -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Include Socket.IO client library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center">Welcome to the Mock Lobby, {{ username }}!</h1>
+        <div class="row mt-4">
+            <div class="col-md-6 d-flex align-items-center justify-content-center text-center">
+                <div>
+                    <h3>How to Play</h3>
+                    <p>1. Only after 2 players joined questions will be posted</p>
+                    <p>2. There will be 25 questions which will help for your interview</p>
+                    <p>3. One who gets the highest score will be the winner</p>
+                </div>
+            </div>
+            
+            
+
+            <div class="col-md-6">
+                <div id="scoresContainer" style="display: none;">
+                    <h3>Scores</h3>
+                    <div id="scores"></div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <!-- Display question and options here -->
+                <div id="questionContainer" style="display: none;">
+                    <h4 id="questionNumber"></h4>
+                    <p id="questionText"></p>
+
+                    <form id="quizForm">
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="winnerContainer" style="display: none;">
+                        <h3 class="text-center">Winner</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title" id="winnerUsername"></h5>
+                                <p class="card-text" id="winnerScore"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap and other scripts if needed -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
+
+    
+
+
+    <!-- Include your Socket.IO connection setup here -->
+    <script>
+        var currentUsername = '{{ username }}';
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        // Handle joining the lobby
+        socket.emit('join_lobby', {'game_id': 'quiz_lobby', 'username': currentUsername});
+
+        // Handle redirect event
+        socket.on('redirect', function(data) {
+            console.log('Received redirect event:', data);
+            // Redirect to the specified URL
+            window.location.href = data.url;
+        });
+
+        // Handle rendering question in the lobby
+        socket.on('render_question', function(data) {
+            console.log('Received render_question event:', data);
+            renderQuestion(data);
+        });
+        socket.on('ram_q', function(data) {
+            console.log('Received next question:', data);
+            ram(data);
+        });
+     
+
+        socket.on('update_scores', function(data) {
+    console.log('Received update_scores event:', data);
+    updateScores(data.players);
+});
+socket.on('announce_winner', function(data) {
+        console.log('Received announce_winner event:', data);
+        announceWinner(data.winner);
+    });
+
+    function announceWinner(winner) {
+        // Display the winner in the UI
+        document.getElementById('winnerUsername').textContent = `Username: ${winner.username}`;
+        document.getElementById('winnerScore').textContent = `Score: ${winner.score}`;
+
+        // Show the winner container
+        document.getElementById('winnerContainer').style.display = 'block';
+    }
+
+function updateScores(players) {
+    // Display scores in the scores container
+    const scoresContainer = document.getElementById('scores');
+    scoresContainer.innerHTML = '';
+
+    players.forEach(player => {
+        const scoreElement = document.createElement('p');
+        scoreElement.textContent = `${player.username}: ${player.score}`;
+        scoresContainer.appendChild(scoreElement);
+    });
+
+    // Show the scores container
+    document.getElementById('scoresContainer').style.display = 'block';
+}
+
+        function renderQuestion(data) {
+            console.log('rendered 1st question');
+    // Display question and options
+    document.getElementById('questionNumber').textContent = `Question ${data.questionNumber}`;
+    document.getElementById('questionText').textContent = data.question;
+
+    const form = document.getElementById('quizForm');
+
+    // Clear previous options
+    form.innerHTML = '';
+
+    data.options.forEach((option, index) => {
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'answer';
+        input.id = `option${index + 1}`;
+        input.value = option;
+
+        const label = document.createElement('label');
+        label.setAttribute('for', `option${index + 1}`);
+        label.textContent = option;
+
+        form.appendChild(input);
+        form.appendChild(label);
+        form.appendChild(document.createElement('br'));
+    });
+
+    // Add a submit button for the current question
+    const submitButton = document.createElement('button');
+    submitButton.type = 'button';
+    submitButton.classList.add('btn', 'btn-primary', 'mt-3');
+    submitButton.textContent = 'Submit Answer';
+    submitButton.onclick = submitAnswer;  // Attach the submitAnswer function to the button
+
+    form.appendChild(submitButton);
+
+    // Show the question container
+    document.getElementById('questionContainer').style.display = 'block';
+}
+function ram(data) {
+    console.log('rendered next question');
+            // Display question and options only for the current user
+            if (data.username == currentUsername) {
+                document.getElementById('questionNumber').textContent = `Question ${data.questionNumber}`;
+                document.getElementById('questionText').textContent = data.question;
+
+                const form = document.getElementById('quizForm');
+
+                // Clear previous options
+                form.innerHTML = '';
+
+                data.options.forEach((option, index) => {
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = 'answer';
+                    input.id = `option${index + 1}`;
+                    input.value = option;
+
+                    const label = document.createElement('label');
+                    label.setAttribute('for', `option${index + 1}`);
+                    label.textContent = option;
+
+                    form.appendChild(input);
+                    form.appendChild(label);
+                    form.appendChild(document.createElement('br'));
+                });
+
+
+                // Add a submit button for the current question
+                const submitButton = document.createElement('button');
+                submitButton.type = 'button';
+                submitButton.classList.add('btn', 'btn-primary', 'mt-3');
+                submitButton.textContent = 'Submit Answer';
+                submitButton.onclick = submitAnswer;  // Attach the submitAnswer function to the button
+
+                form.appendChild(submitButton);
+
+                // Show the question container
+                document.getElementById('questionContainer').style.display = 'block';
+            }
+        }
+
+
+
+        function submitAnswer() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (selectedAnswer) {
+                const answer = selectedAnswer.value;
+                socket.emit('submit_answer', { 'game_id': 'quiz_lobby', 'username': currentUsername, 'answer': answer });
+            } else {
+                alert('Please select an answer.');
+            }
+        }
+    </script>
+
+    <!-- Include your Bootstrap and other scripts if needed -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

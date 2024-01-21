@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+Wy6Ck1CnSkMqE3Ll/6U5f5Z8T95X2RW4J" crossorigin="anonymous">
+
+    <style>
+        /* Add this inside the style tag or a separate CSS file */
+        
+        /* Increase the size of the form inputs */
+        .form-control {
+            height: 5px;
+        }
+
+        /* Customize the color of the submit button */
+        .btn-primary {
+            background-color: white;
+            border-color: hotpink;
+        }
+    </style>
+</head>
+<body>
+    <div class="container form-container">
+        <h1 class="text-center">Register</h1>
+
+        <!-- Flash Messages Section -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.name.label }} {{ form.name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.username.label }} {{ form.username(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label }} {{ form.password(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.confirm_password.label }} {{ form.confirm_password(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.email.label }} {{ form.email(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.phone.label }} {{ form.phone(class="form-control") }}
+            </div>
+            <button type="submit" class="btn btn-primary">{{ form.submit() }}</button>
+        </form>
+        <p class="text-center mt-3">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </div>
+</body>
+</html>
